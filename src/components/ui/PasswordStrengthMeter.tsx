@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { calculatePasswordStrength, PasswordStrength } from '../../utils/validation';
+import { calculatePasswordStrength, PasswordStrength } from '../../../utils/validation';
 import { CheckIcon } from '../icons';
 
 interface PasswordStrengthMeterProps {

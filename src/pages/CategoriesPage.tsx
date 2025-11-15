@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useData } from '../context/DataContext';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { TransactionType, Category } from '../types';
+import { TransactionType, Category } from '../../types';
 import { Trash2Icon, EditIcon, XIcon, ArrowUpDownIcon } from '../components/icons';
 import CustomSelect, { SelectOption } from '../components/ui/CustomSelect';
 import { useToast } from '../context/ToastContext';

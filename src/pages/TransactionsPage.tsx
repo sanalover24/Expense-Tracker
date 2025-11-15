@@ -6,7 +6,7 @@ import { Trash2Icon, EditIcon, XIcon, ArrowUpDownIcon, FolderIcon, CalendarIcon,
 import { Transaction as DbTransaction, Category } from '../context/DataContext'; // Rename original type
 import CustomSelect, { SelectOption } from '../components/ui/CustomSelect';
 import PremierDatePicker, { DateFilter } from '../components/ui/PremierCalendar';
-import { toYYYYMMDD, isSameDay } from '../utils/date';
+import { toYYYYMMDD, isSameDay } from '../../utils/date';
 
 // Define the shape of data our UI components will use
 type DisplayTransaction = {

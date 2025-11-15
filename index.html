@@ -5,74 +5,120 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
+    <!-- Meta tags for a better mobile "Add to Home Screen" experience -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" id="theme-color-meta" content="#fafafa" />
+    <meta name="theme-color" id="theme-color-meta" content="#fafafa" /> <!-- Default light theme (slate-50) -->
     
     <title>Smart Expense Tracker</title>
     
     <style>
-      /* Your theme animations and keyframes are correct */
-      body, .bg-white, .bg-slate-50, .dark .bg-black, .dark .bg-slate-900, .dark .bg-gray-800, .dark .bg-gray-900 {
-        transition-property: color, background-color, border-color;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        transition-duration: 350ms;
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
       }
-      /* Keep all your @keyframes rules here */
-      @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-      .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
-      @keyframes fade-in-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-      .animate-fade-in-up { animation: fade-in-up 0.2s ease-out forwards; opacity: 0; }
+      .animate-fade-in {
+        animation: fade-in 0.3s ease-out forwards;
+      }
+
+      @keyframes fade-in-up {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in-up {
+        animation: fade-in-up 0.2s ease-out forwards;
+        opacity: 0; /* Start hidden */
+      }
+      
+      @keyframes fade-in-down {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in-down {
+        animation: fade-in-down 0.2s ease-out forwards;
+        opacity: 0;
+      }
+
+      @keyframes slide-in-right {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      .animate-slide-in-right {
+        animation: slide-in-right 0.4s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+      }
+      @keyframes fade-out {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+      .animate-fade-out {
+        animation: fade-out 0.5s ease-out forwards;
+      }
+      
+      @keyframes pop-in {
+        0% {
+          opacity: 0;
+          transform: scale(0.5);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      .animate-pop-in {
+        animation: pop-in 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+      }
     </style>
     
-    <!-- --- START OF THE FIX: CORRECT SCRIPT ORDER --- -->
-    
-    <!-- 1. LOAD THE MAIN TAILWIND LIBRARY FIRST -->
-    <!-- This creates the global `tailwind` object -->
     <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- 2. CONFIGURE TAILWIND AFTER IT HAS LOADED -->
-    <!-- This script can now find and modify `tailwind.config` -->
-    <script>
-      tailwind.config = {
-        darkMode: 'class', // This is the crucial instruction
-        theme: {
-          extend: {}
-        }
-      }
-    </script>
     
-    <!-- --- END OF THE FIX --- -->
-
     <script>
-      // Your flicker-prevention script is correct and should remain here
       (function() {
-        function getInitialTheme() {
-          const storedTheme = localStorage.getItem('theme');
-          if (storedTheme) return storedTheme;
-          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        const theme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (theme === 'dark' || (!theme && prefersDark)) {
+          document.documentElement.classList.add('dark');
         }
-        document.documentElement.classList.add(getInitialTheme());
       })();
     </script>
     
-    <script type="importmap">
-    {
-      "imports": {
-        "react/": "https://aistudiocdn.com/react@^19.2.0/",
-        "react": "https://aistudiocdn.com/react@^19.2.0",
-        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-        "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.5",
-        "recharts": "https://aistudiocdn.com/recharts@^3.3.0",
-        "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0"
-      }
-    }
-    </script>
-  </head>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.5",
+    "recharts": "https://aistudiocdn.com/recharts@^3.3.0",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
   <body class="bg-slate-50 dark:bg-black">
     <div id="root"></div>
     <script type="module" src="/index.tsx"></script>
   </body>
-</html>```
-
-After replacing your `index.html` with this code, the `tailwind is not defined` error will be gone, and your dark mode toggle will finally work as intended. Thank you for your patience.
+</html>

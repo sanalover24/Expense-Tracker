@@ -1,148 +1,129 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
-import { supabase } from '../supabaseClient';
-import { Session, User } from '@supabase/supabase-js';
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { Transaction, Category, User } from '../types';
+import { dummyUser, dummyCategories, dummyTransactions } from '../data';
 
-export interface Transaction {
-  id?: number;
-  date: string;
-  description: string;
-  amount: number;
-  category_id: number;
-  user_id?: string;
-}
-
-export interface Category {
-  id?: number;
-  name: string;
-  user_id?: string;
-}
-
-interface DataContextType {
+type DataContextType = {
+  user: User;
   transactions: Transaction[];
   categories: Category[];
-  loading: boolean;
-  user: User | null;
-  addTransaction: (transaction: Omit<Transaction, 'id' | 'user_id'>) => Promise<void>;
-  addCategory: (category: Omit<Category, 'id' | 'user_id'>) => Promise<void>;
-}
+  addTransaction: (newTransaction: Omit<Transaction, 'id'>) => void;
+  deleteTransaction: (id: string) => void;
+  updateTransaction: (updated: Transaction) => void;
+  addCategory: (newCategory: Omit<Category, 'id'>) => boolean;
+  deleteCategory: (id: string) => void;
+  updateCategory: (updated: Category) => void;
+  resetToDefaults: () => void;
+};
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [user] = useState<User>(dummyUser);
 
-  useEffect(() => {
-    const initializeAndListen = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
-      setLoading(false);
-
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-        setUser(session?.user ?? null);
-      });
-
-      return () => {
-        subscription?.unsubscribe();
-      };
-    };
-
-    initializeAndListen();
-  }, []);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!user) {
-        setLoading(false);
-        setTransactions([]);
-        setCategories([]);
-        return;
-      }
-
-      console.log("User found, attempting to fetch data...");
-      setLoading(true);
-
-      const [transactionsResponse, categoriesResponse] = await Promise.all([
-        supabase.from('transactions').select('*').eq('user_id', user.id),
-        supabase.from('categories').select('*').eq('user_id', user.id)
-      ]);
-
-      const { data: transactionsData, error: transactionsError } = transactionsResponse;
-      const { data: categoriesData, error: categoriesError } = categoriesResponse;
-
-      if (transactionsError) {
-        console.error('CRITICAL: DATABASE READ ERROR (Transactions):', transactionsError);
-      } else {
-        console.log("Successfully fetched transactions:", transactionsData);
-        setTransactions(transactionsData || []);
-      }
-
-      if (categoriesError) {
-        console.error('CRITICAL: DATABASE READ ERROR (Categories):', categoriesError);
-      } else {
-        console.log("Successfully fetched categories:", categoriesData);
-        setCategories(categoriesData || []);
-      }
-
-      setLoading(false);
-    };
-
-    fetchData();
-  }, [user]);
-
-  const addTransaction = async (transaction: Omit<Transaction, 'id' | 'user_id'>) => {
-    if (!user) throw new Error("User is not logged in.");
-
-    const newTransaction = { ...transaction, user_id: user.id };
-    console.log("Attempting to insert transaction:", newTransaction);
-
-    const { data, error } = await supabase
-      .from('transactions')
-      .insert([newTransaction])
-      .select();
-
-    if (error) {
-      console.error('CRITICAL: DATABASE INSERT ERROR (Transaction):', error);
-      throw new Error(`Database error: ${error.message}`);
+  // Load initial state from localStorage or use dummy data
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    try {
+      const saved = localStorage.getItem('transactions');
+      return saved ? JSON.parse(saved) : dummyTransactions;
+    } catch {
+      return dummyTransactions;
     }
+  });
+
+  const [categories, setCategories] = useState<Category[]>(() => {
+    try {
+      const saved = localStorage.getItem('categories');
+      return saved ? JSON.parse(saved) : dummyCategories;
+    } catch {
+      return dummyCategories;
+    }
+  });
+
+  // Save to localStorage whenever state changes
+  useEffect(() => {
+    localStorage.setItem('transactions', JSON.stringify(transactions));
+  }, [transactions]);
+
+  useEffect(() => {
+    localStorage.setItem('categories', JSON.stringify(categories));
+  }, [categories]);
+
+  const addTransaction = (newTransaction: Omit<Transaction, 'id'>) => {
+    const transactionWithId: Transaction = {
+      ...newTransaction,
+      id: new Date().getTime().toString() + Math.random().toString(36).substring(2, 9), // simple unique id
+    };
+    setTransactions(prev => [transactionWithId, ...prev].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()));
+  };
+
+  const deleteTransaction = (id: string) => {
+    setTransactions(prev => prev.filter(t => t.id !== id));
+  };
+
+  const updateTransaction = (updated: Transaction) => {
+    setTransactions(prev => prev.map(t => (t.id === updated.id ? updated : t)));
+  };
+
+  const addCategory = (newCategory: Omit<Category, 'id'>): boolean => {
+    if (categories.some(c => c.name.toLowerCase() === newCategory.name.toLowerCase() && c.type === newCategory.type)) {
+      return false;
+    }
+    const categoryWithId: Category = {
+      ...newCategory,
+      id: new Date().getTime().toString() + Math.random().toString(36).substring(2, 9),
+    };
+    setCategories(prev => [...prev, categoryWithId]);
+    return true;
+  };
+
+  const deleteCategory = (id: string) => {
+    const categoryToDelete = categories.find(c => c.id === id);
+    if (!categoryToDelete) return;
+    setCategories(prev => prev.filter(c => c.id !== id));
+    // Also delete transactions with this category
+    setTransactions(prev => prev.filter(t => t.category !== categoryToDelete.name));
+  };
+
+  const updateCategory = (updated: Category) => {
+    const oldCategory = categories.find(c => c.id === updated.id);
+    if (!oldCategory) return;
+
+    setCategories(prev => prev.map(c => (c.id === updated.id ? updated : c)));
     
-    console.log("Successfully inserted transaction:", data);
-    if (data) {
-      setTransactions(current => [...current, ...data]);
+    // If category name changed, update transactions
+    if (oldCategory.name !== updated.name) {
+        setTransactions(prev => prev.map(t => t.category === oldCategory.name ? { ...t, category: updated.name } : t));
     }
   };
   
-  const addCategory = async (category: Omit<Category, 'id' | 'user_id'>) => {
-    if (!user) throw new Error("User is not logged in.");
-
-    const newCategory = { ...category, user_id: user.id };
-
-    const { data, error } = await supabase
-      .from('categories')
-      .insert([newCategory])
-      .select();
-
-    if (error) {
-      console.error('CRITICAL: DATABASE INSERT ERROR (Category):', error);
-      throw new Error(error.message);
-    }
-    
-    if (data) {
-      setCategories(current => [...current, ...data]);
-    }
+  const resetToDefaults = () => {
+    setTransactions(dummyTransactions);
+    setCategories(dummyCategories);
   };
 
-  const value = { transactions, categories, loading, user, addTransaction, addCategory };
 
-  return <DataContext.Provider value={value}>{children}</DataContext.Provider>;
+  return (
+    <DataContext.Provider
+      value={{
+        user,
+        transactions,
+        categories,
+        addTransaction,
+        deleteTransaction,
+        updateTransaction,
+        addCategory,
+        deleteCategory,
+        updateCategory,
+        resetToDefaults,
+      }}
+    >
+      {children}
+    </DataContext.Provider>
+  );
 };
 
 export const useData = () => {
   const context = useContext(DataContext);
-  if (context === undefined) {
-    throw new Error('useData must be used within a DataProvider');
-  }
+  if (!context) throw new Error('useData must be used within a DataProvider');
   return context;
 };

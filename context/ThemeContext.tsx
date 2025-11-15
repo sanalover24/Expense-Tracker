@@ -11,30 +11,35 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [theme, setTheme] = useState<Theme>(() => {
-    // Check localStorage first, then system preference
+    // This function runs only once on initial load
+    if (typeof window === 'undefined') return 'light'; // Server-side rendering safety
     const storedTheme = localStorage.getItem('theme');
-    if (storedTheme) {
-      return storedTheme as Theme;
-    }
+    if (storedTheme) return storedTheme as Theme;
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
 
+  // This effect applies the theme to the HTML tag and localStorage whenever it changes
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.remove(theme === 'dark' ? 'light' : 'dark');
+    const isDark = theme === 'dark';
+
+    root.classList.remove(isDark ? 'light' : 'dark');
     root.classList.add(theme);
     localStorage.setItem('theme', theme);
+    
+    // Update the mobile address bar color
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', isDark ? '#000000' : '#fafafa');
   }, [theme]);
 
-  // Listen for changes in the user's system preference
+  // This effect listens for OS-level theme changes (e.g., sunrise/sunset)
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
     const handleChange = (e: MediaQueryListEvent) => {
-        // Only change if the user hasn't manually set a theme
-        if (!localStorage.getItem('theme-manual-override')) {
-             setTheme(e.matches ? 'dark' : 'light');
-        }
+      // Only change if the user has NOT manually overridden the theme
+      if (!localStorage.getItem('theme-manual-override')) {
+        setTheme(e.matches ? 'dark' : 'light');
+      }
     };
 
     mediaQuery.addEventListener('change', handleChange);
@@ -42,12 +47,9 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, []);
 
   const toggleTheme = () => {
-    setTheme(prevTheme => {
-        const newTheme = prevTheme === 'light' ? 'dark' : 'light';
-        // When the user manually toggles, we should stop listening to system changes
-        localStorage.setItem('theme-manual-override', 'true');
-        return newTheme;
-    });
+    // When a user clicks the button, we set an override flag
+    localStorage.setItem('theme-manual-override', 'true');
+    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
   };
 
   const value = useMemo(() => ({ theme, toggleTheme }), [theme]);

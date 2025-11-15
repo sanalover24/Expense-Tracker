@@ -13,112 +13,73 @@
     <title>Smart Expense Tracker</title>
     
     <style>
-      @keyframes fade-in {
-        from { opacity: 0; }
-        to { opacity: 1; }
+      /* --- START: PREMIUM THEME ANIMATIONS --- */
+      /* This applies a smooth transition to the most common elements that change color */
+      body, .bg-white, .bg-slate-50, .dark .bg-black, .dark .bg-slate-900, .dark .bg-gray-800, .dark .bg-gray-900, .dark .bg-slate-800\/50 {
+        transition-property: color, background-color, border-color;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 350ms;
       }
-      .animate-fade-in {
-        animation: fade-in 0.3s ease-out forwards;
-      }
+      /* --- END: PREMIUM THEME ANIMATIONS --- */
 
-      @keyframes fade-in-up {
-        from {
-          opacity: 0;
-          transform: translateY(10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .animate-fade-in-up {
-        animation: fade-in-up 0.2s ease-out forwards;
-        opacity: 0; /* Start hidden */
-      }
-      
-      @keyframes fade-in-down {
-        from {
-          opacity: 0;
-          transform: translateY(-10px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .animate-fade-in-down {
-        animation: fade-in-down 0.2s ease-out forwards;
-        opacity: 0;
-      }
-
-      @keyframes slide-in-right {
-        from {
-          transform: translateX(100%);
-          opacity: 0;
-        }
-        to {
-          transform: translateX(0);
-          opacity: 1;
-        }
-      }
-      .animate-slide-in-right {
-        animation: slide-in-right 0.4s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-      }
-      @keyframes fade-out {
-        from {
-          opacity: 1;
-        }
-        to {
-          opacity: 0;
-        }
-      }
-      .animate-fade-out {
-        animation: fade-out 0.5s ease-out forwards;
-      }
-      
-      @keyframes pop-in {
-        0% {
-          opacity: 0;
-          transform: scale(0.5);
-        }
-        100% {
-          opacity: 1;
-          transform: scale(1);
-        }
-      }
-      .animate-pop-in {
-        animation: pop-in 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
-      }
+      /* Your existing keyframe animations (unchanged) */
+      @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+      .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+      @keyframes fade-in-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+      .animate-fade-in-up { animation: fade-in-up 0.2s ease-out forwards; opacity: 0; }
+      @keyframes fade-in-down { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+      .animate-fade-in-down { animation: fade-in-down 0.2s ease-out forwards; opacity: 0; }
+      @keyframes slide-in-right { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+      .animate-slide-in-right { animation: slide-in-right 0.4s cubic-bezier(0.250, 0.460, 0.450, 0.940) both; }
+      @keyframes fade-out { from { opacity: 1; } to { opacity: 0; } }
+      .animate-fade-out { animation: fade-out 0.5s ease-out forwards; }
+      @keyframes pop-in { 0% { opacity: 0; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1); } }
+      .animate-pop-in { animation: pop-in 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) both; }
     </style>
     
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- FINAL SCRIPT: This script runs before React to prevent theme flashing -->
     <script>
       (function() {
-        const theme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (theme === 'dark' || (!theme && prefersDark)) {
-          document.documentElement.classList.add('dark');
+        function getInitialTheme() {
+          try {
+            const storedTheme = localStorage.getItem('theme');
+            if (storedTheme) {
+              return storedTheme;
+            }
+            // If no theme is stored, check the user's OS preference
+            return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          } catch (e) {
+            return 'light'; // Default to light theme if localStorage/matchMedia fails
+          }
         }
+
+        const theme = getInitialTheme();
+        const root = document.documentElement;
+        
+        // Ensure the correct class is on the HTML tag before anything renders
+        root.classList.remove(theme === 'dark' ? 'light' : 'dark');
+        root.classList.add(theme);
       })();
     </script>
     
-  <script type="importmap">
-{
-  "imports": {
-    "react/": "https://aistudiocdn.com/react@^19.2.0/",
-    "react": "https://aistudiocdn.com/react@^19.2.0",
-    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.5",
-    "recharts": "https://aistudiocdn.com/recharts@^3.3.0",
-    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0"
-  }
-}
-</script>
-<link rel="stylesheet" href="/index.css">
-</head>
+    <script type="importmap">
+    {
+      "imports": {
+        "react/": "https://aistudiocdn.com/react@^19.2.0/",
+        "react": "https://aistudiocdn.com/react@^19.2.0",
+        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+        "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.5",
+        "recharts": "https://aistudiocdn.com/recharts@^3.3.0",
+        "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0"
+      }
+    }
+    </script>
+    <!-- The unneeded index.css link has been removed. -->
+  </head>
   <body class="bg-slate-50 dark:bg-black">
     <div id="root"></div>
-    <script type="module" src="/index.tsx"></script>
+    <script type="module" src="./index.tsx"></script>
   </body>
 </html>

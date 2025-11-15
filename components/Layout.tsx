@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { useData } from '../context/DataContext'; // Import the useData hook
+import { useData } from '../context/DataContext';
+import { useTheme } from '../context/ThemeContext'; // 1. IMPORT THEME HOOK
+import { SunIcon, MoonIcon } from './icons';     // 2. IMPORT ICONS
 
-// Define the props for the Layout component
 interface LayoutProps {
   onLogout: () => void;
 }
 
-// Helper component for navigation links
 const SidebarLink: React.FC<{ to: string; children: React.ReactNode }> = ({ to, children }) => (
   <NavLink
     to={to}
@@ -22,8 +22,8 @@ const SidebarLink: React.FC<{ to: string; children: React.ReactNode }> = ({ to, 
 );
 
 const Layout: React.FC<LayoutProps> = ({ onLogout }) => {
-  // Get the user directly from our global context. No need to fetch it again!
   const { user } = useData(); 
+  const { theme, toggleTheme } = useTheme(); // 3. USE THE THEME HOOK
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -35,13 +35,12 @@ const Layout: React.FC<LayoutProps> = ({ onLogout }) => {
   return (
     <div>
       {/* Mobile Header */}
-      <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 dark:border-gray-700 md:hidden">
+      <nav className="fixed top-0 z-50 w-full bg-white border-b border-gray-200 dark:bg-gray-800 md:hidden">
         <div className="px-3 py-3 lg:px-5 lg:pl-3">
           <div className="flex items-center justify-between">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              aria-controls="logo-sidebar"
-              type="button"
+              aria-controls="logo-sidebar" type="button"
               className="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
             >
               <span className="sr-only">Open sidebar</span>
@@ -60,11 +59,29 @@ const Layout: React.FC<LayoutProps> = ({ onLogout }) => {
         id="logo-sidebar"
         className={`fixed top-0 left-0 z-40 w-64 h-screen pt-20 transition-transform ${
           isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        } bg-white border-r border-gray-200 md:translate-x-0 dark:bg-gray-800 dark:border-gray-700`}
+        } bg-white border-r border-gray-200 md:translate-x-0 dark:bg-gray-800`}
         aria-label="Sidebar"
       >
         <div className="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
-          <ul className="space-y-2">
+          
+          {/* --- 4. ADDED THEME TOGGLE BUTTON --- */}
+          <div className="p-2 mb-2">
+            <button
+              onClick={toggleTheme}
+              className="w-full flex items-center justify-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+              aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+            >
+              {theme === 'light' ? (
+                <MoonIcon className="w-5 h-5 text-slate-700" />
+              ) : (
+                <SunIcon className="w-5 h-5 text-yellow-400" />
+              )}
+              <span className="ml-3 capitalize">{theme === 'light' ? 'Dark' : 'Light'} Mode</span>
+            </button>
+          </div>
+          {/* --- END THEME TOGGLE BUTTON --- */}
+
+          <ul className="space-y-2 border-t border-gray-200 dark:border-gray-700 pt-2">
             <li><SidebarLink to="/dashboard">Dashboard</SidebarLink></li>
             <li><SidebarLink to="/transactions">Transactions</SidebarLink></li>
             <li><SidebarLink to="/add">Add Transaction</SidebarLink></li>
@@ -73,18 +90,18 @@ const Layout: React.FC<LayoutProps> = ({ onLogout }) => {
             <li><SidebarLink to="/profile">Profile</SidebarLink></li>
           </ul>
 
-          <div className="absolute bottom-0 left-0 w-full p-4">
+          <div className="absolute bottom-0 left-0 w-full p-4 border-t border-gray-200 dark:border-gray-700">
             {user ? (
               <div className="p-2 text-sm text-gray-600 dark:text-gray-300">
                 Logged in as: <br />
-                <span className="font-semibold">{user.email}</span>
+                <span className="font-semibold truncate">{user.email}</span>
               </div>
             ) : (
                 <div className="p-2 text-sm text-gray-600 dark:text-gray-300">Loading...</div>
             )}
             <button
               onClick={handleLogoutClick}
-              className="w-full p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white bg-red-100 dark:bg-red-800 hover:bg-red-200 dark:hover:bg-red-700"
+              className="w-full mt-2 p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white bg-red-100 dark:bg-red-800 hover:bg-red-200 dark:hover:bg-red-700"
             >
               Logout
             </button>

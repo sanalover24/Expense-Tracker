@@ -18,31 +18,34 @@
         transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
         transition-duration: 350ms;
       }
+      /* Keep all your @keyframes rules here */
       @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
       .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
       @keyframes fade-in-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
       .animate-fade-in-up { animation: fade-in-up 0.2s ease-out forwards; opacity: 0; }
-      /* ... keep all your other @keyframes rules here ... */
     </style>
     
-    <!-- --- START OF THE FIX --- -->
-    <!-- This script MUST come BEFORE the main Tailwind script -->
+    <!-- --- START OF THE FIX: CORRECT SCRIPT ORDER --- -->
+    
+    <!-- 1. LOAD THE MAIN TAILWIND LIBRARY FIRST -->
+    <!-- This creates the global `tailwind` object -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- 2. CONFIGURE TAILWIND AFTER IT HAS LOADED -->
+    <!-- This script can now find and modify `tailwind.config` -->
     <script>
       tailwind.config = {
-        darkMode: 'class', // This is the crucial line that fixes the problem
+        darkMode: 'class', // This is the crucial instruction
         theme: {
-          extend: {
-            // You can add custom colors or other extensions here in the future
-          }
+          extend: {}
         }
       }
     </script>
+    
     <!-- --- END OF THE FIX --- -->
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    
     <script>
-      // Your flicker-prevention script is correct and should remain
+      // Your flicker-prevention script is correct and should remain here
       (function() {
         function getInitialTheme() {
           const storedTheme = localStorage.getItem('theme');
@@ -68,6 +71,8 @@
   </head>
   <body class="bg-slate-50 dark:bg-black">
     <div id="root"></div>
-    <script type="module" src="./index.tsx"></script>
+    <script type="module" src="/src/index.tsx"></script>
   </body>
-</html>
+</html>```
+
+After replacing your `index.html` with this code, the `tailwind is not defined` error will be gone, and your dark mode toggle will finally work as intended. Thank you for your patience.

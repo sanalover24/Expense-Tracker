@@ -5,128 +5,120 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
+    <!-- Meta tags for a better mobile "Add to Home Screen" experience -->
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="theme-color" id="theme-color-meta" content="#fafafa" />
+    <meta name="theme-color" id="theme-color-meta" content="#fafafa" /> <!-- Default light theme (slate-50) -->
     
     <title>Smart Expense Tracker</title>
     
-    <script src="https://cdn.tailwindcss.com"></script>
-    
     <style>
-      /* --- START: Theme Animations --- */
-      body, .bg-slate-50, .dark .bg-black, .bg-white, .dark .bg-slate-900, .dark .bg-slate-800 {
-        transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        transition-duration: 300ms;
+      @keyframes fade-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
       }
-      /* --- END: Theme Animations --- */
+      .animate-fade-in {
+        animation: fade-in 0.3s ease-out forwards;
+      }
+
+      @keyframes fade-in-up {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in-up {
+        animation: fade-in-up 0.2s ease-out forwards;
+        opacity: 0; /* Start hidden */
+      }
       
-      /* You can keep your other animations here if you have them */
-      @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-      .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
-      @keyframes fade-in-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-      .animate-fade-in-up { animation: fade-in-up 0.2s ease-out forwards; opacity: 0; }
+      @keyframes fade-in-down {
+        from {
+          opacity: 0;
+          transform: translateY(-10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade-in-down {
+        animation: fade-in-down 0.2s ease-out forwards;
+        opacity: 0;
+      }
+
+      @keyframes slide-in-right {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      .animate-slide-in-right {
+        animation: slide-in-right 0.4s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+      }
+      @keyframes fade-out {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+      .animate-fade-out {
+        animation: fade-out 0.5s ease-out forwards;
+      }
+      
+      @keyframes pop-in {
+        0% {
+          opacity: 0;
+          transform: scale(0.5);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+      }
+      .animate-pop-in {
+        animation: pop-in 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
+      }
     </style>
     
+    <script src="https://cdn.tailwindcss.com"></script>
+    
     <script>
-      // This script runs before React to prevent theme flashing
       (function() {
-        function getInitialTheme() {
-          const storedTheme = localStorage.getItem('theme');
-          if (storedTheme) {
-            return storedTheme;
-          }
-          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-
-        const theme = getInitialTheme();
-        const root = document.documentElement;
-        root.classList.add(theme);
-
-        // Update meta theme-color
-        const metaThemeColor = document.querySelector('meta[name="theme-color"]');
-        if (metaThemeColor) {
-            if (theme === 'dark') {
-                metaThemeColor.setAttribute('content', '#020617'); // slate-950 for dark
-            } else {
-                metaThemeColor.setAttribute('content', '#fafafa'); // slate-50 for light
-            }
+        const theme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (theme === 'dark' || (!theme && prefersDark)) {
+          document.documentElement.classList.add('dark');
         }
       })();
     </script>
     
-  </head>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.5",
+    "recharts": "https://aistudiocdn.com/recharts@^3.3.0",
+    "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
   <body class="bg-slate-50 dark:bg-black">
     <div id="root"></div>
-    <script type="module" src="/src/index.tsx"></script>
+    <script type="module" src="/index.tsx"></script>
   </body>
-</html>```
-
----
-
-### **Step 3: Add a Theme Toggle Button**
-
-Now, you need a button somewhere in your UI to allow the user to manually switch themes. A great place for this is in your `Layout.tsx` component, perhaps in the sidebar.
-
-**Open the file `src/components/Layout.tsx`** and add the `useTheme` hook and a button to toggle the theme. I'll place it at the top of the sidebar for this example.
-
-**File Location: `src/components/Layout.tsx`**
-*(This is an example of where to add the button. You only need to add the highlighted parts to your existing file.)*
-```typescript
-// ... other imports
-import { useTheme } from '../context/ThemeContext'; // <-- IMPORT THE HOOK
-import { SunIcon, MoonIcon } from '../components/icons'; // <-- IMPORT ICONS (you may need to create these)
-
-// ... inside your Layout component
-const Layout: React.FC<LayoutProps> = ({ onLogout }) => {
-  const { theme, toggleTheme } = useTheme(); // <-- USE THE HOOK
-  // ... rest of your state (user, isSidebarOpen, etc.)
-
-  return (
-    <div>
-      {/* ... your mobile header ... */}
-      
-      {/* Sidebar */}
-      <aside
-        id="logo-sidebar"
-        // ... other classes
-      >
-        <div className="h-full px-3 pb-4 overflow-y-auto bg-white dark:bg-gray-800">
-          
-          {/* --- START: ADD THE THEME TOGGLE BUTTON HERE --- */}
-          <div className="p-2 mb-2">
-            <button
-              onClick={toggleTheme}
-              className="w-full flex items-center justify-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
-            >
-              {theme === 'light' ? (
-                <>
-                  <MoonIcon className="w-6 h-6 mr-3" />
-                  <span>Dark Mode</span>
-                </>
-              ) : (
-                <>
-                  <SunIcon className="w-6 h-6 mr-3" />
-                  <span>Light Mode</span>
-                </>
-              )}
-            </button>
-          </div>
-          {/* --- END: THEME TOGGLE BUTTON --- */}
-
-          <ul className="space-y-2">
-            <li><SidebarLink to="/dashboard">Dashboard</SidebarLink></li>
-            {/* ... your other links */}
-          </ul>
-
-          {/* ... rest of your sidebar (logout button, etc.) */}
-        </div>
-      </aside>
-
-      {/* ... Main Content ... */}
-    </div>
-  );
-};
-
-export default Layout;
+</html>

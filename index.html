@@ -11,68 +11,13 @@
     
     <title>Smart Expense Tracker</title>
     
-    <style>
-      /* Your theme animations and keyframes are correct */
-      body, .bg-white, .bg-slate-50, .dark .bg-black, .dark .bg-slate-900, .dark .bg-gray-800, .dark .bg-gray-900 {
-        transition-property: color, background-color, border-color;
-        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        transition-duration: 350ms;
-      }
-      /* Keep all your @keyframes rules here */
-      @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-      .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
-      @keyframes fade-in-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-      .animate-fade-in-up { animation: fade-in-up 0.2s ease-out forwards; opacity: 0; }
-    </style>
+    <!-- NOTE: All style and script tags for Tailwind have been removed. -->
+    <!-- Your ThemeContext now handles everything, including flicker prevention. -->
     
-    <!-- --- START OF THE FIX: CORRECT SCRIPT ORDER --- -->
-    
-    <!-- 1. LOAD THE MAIN TAILWIND LIBRARY FIRST -->
-    <!-- This creates the global `tailwind` object -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- 2. CONFIGURE TAILWIND AFTER IT HAS LOADED -->
-    <!-- This script can now find and modify `tailwind.config` -->
-    <script>
-      tailwind.config = {
-        darkMode: 'class', // This is the crucial instruction
-        theme: {
-          extend: {}
-        }
-      }
-    </script>
-    
-    <!-- --- END OF THE FIX --- -->
-
-    <script>
-      // Your flicker-prevention script is correct and should remain here
-      (function() {
-        function getInitialTheme() {
-          const storedTheme = localStorage.getItem('theme');
-          if (storedTheme) return storedTheme;
-          return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-        }
-        document.documentElement.classList.add(getInitialTheme());
-      })();
-    </script>
-    
-    <script type="importmap">
-    {
-      "imports": {
-        "react/": "https://aistudiocdn.com/react@^19.2.0/",
-        "react": "https://aistudiocdn.com/react@^19.2.0",
-        "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
-        "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.5",
-        "recharts": "https://aistudiocdn.com/recharts@^3.3.0",
-        "react-dom": "https://aistudiocdn.com/react-dom@^19.2.0"
-      }
-    }
-    </script>
   </head>
   <body class="bg-slate-50 dark:bg-black">
     <div id="root"></div>
+    <!-- The importmap script is no longer needed with a local NPM setup -->
     <script type="module" src="/src/index.tsx"></script>
   </body>
-</html>```
-
-After replacing your `index.html` with this code, the `tailwind is not defined` error will be gone, and your dark mode toggle will finally work as intended. Thank you for your patience.
+</html>

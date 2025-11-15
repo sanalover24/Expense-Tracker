@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { DataProvider } from './context/DataContext';
 import { ToastProvider } from './context/ToastContext';
-import { ThemeProvider } from './context/ThemeContext'; // <-- Make sure this is imported
+import { ThemeProvider } from './context/ThemeContext';
 import ToastContainer from './components/ui/ToastContainer';
 
 import Layout from './components/Layout';
@@ -15,45 +15,31 @@ import ReportsPage from './pages/ReportsPage';
 import CategoriesPage from './pages/CategoriesPage';
 import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
-import { supabase } from './supabaseClient';
-import { Session } from '@supabase/supabase-js';
 
 function App() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(() => localStorage.getItem('isLoggedIn') === 'true');
 
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
+  const handleLogin = () => {
+    localStorage.setItem('isLoggedIn', 'true');
+    setIsLoggedIn(true);
+  };
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  if (loading) {
-    return null; // Or a loading spinner
-  }
+  const handleLogout = () => {
+    localStorage.removeItem('isLoggedIn');
+    setIsLoggedIn(false);
+  };
 
   return (
-    // THEME PROVIDER MUST WRAP EVERYTHING
-    <ThemeProvider>
-      <ToastProvider>
-        <DataProvider>
+    <DataProvider>
+      <ThemeProvider>
+        <ToastProvider>
           <HashRouter>
             <Routes>
-              {!session ? (
-                <>
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-                  <Route path="*" element={<Navigate to="/login" replace />} />
-                </>
-              ) : (
-                <Route path="/" element={<Layout onLogout={() => supabase.auth.signOut()} />}>
+              <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
+              <Route path="/register" element={<RegisterPage />} />
+
+              {isLoggedIn ? (
+                <Route path="/" element={<Layout onLogout={handleLogout} />}>
                   <Route index element={<Navigate to="/dashboard" replace />} />
                   <Route path="dashboard" element={<DashboardPage />} />
                   <Route path="transactions" element={<TransactionsPage />} />
@@ -63,13 +49,15 @@ function App() {
                   <Route path="profile" element={<ProfilePage />} />
                   <Route path="*" element={<NotFoundPage />} />
                 </Route>
+              ) : (
+                <Route path="*" element={<Navigate to="/login" replace />} />
               )}
             </Routes>
           </HashRouter>
           <ToastContainer />
-        </DataProvider>
-      </ToastProvider>
-    </ThemeProvider>
+        </ToastProvider>
+      </ThemeProvider>
+    </DataProvider>
   );
 }
 

@@ -7,7 +7,7 @@ import Button from '../components/ui/Button';
 import { SunIcon, MoonIcon, Trash2Icon, FolderIcon, RefreshCwIcon, XIcon } from '../components/icons';
 import { useToast } from '../context/ToastContext';
 import PasswordStrengthMeter from '../components/ui/PasswordStrengthMeter';
-import { calculatePasswordStrength } from '../../utils/validation';
+import { calculatePasswordStrength } from '../utils/validation';
 
 const ProfilePage: React.FC = () => {
   const { user, resetToDefaults } = useData();

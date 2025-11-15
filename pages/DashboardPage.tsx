@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { useData } from '../context/DataContext';
 import Card from '../components/ui/Card';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, Sector } from 'recharts';
-import { toYYYYMMDD } from '../../utils/date';
+import { toYYYYMMDD } from '../utils/date';
 import { PieChartIcon, BarChartIcon } from '../components/icons';
 import { Category } from '../context/DataContext'; // Import the Category type
 

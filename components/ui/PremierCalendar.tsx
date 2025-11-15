@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { CalendarIcon, ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from '../icons';
-import { isSameDay } from '../../../utils/date';
+import { isSameDay } from '../../utils/date';
 
 type FilterMode = 'month' | 'day' | 'range';
 export type DateFilter = {

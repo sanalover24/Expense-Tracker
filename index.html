@@ -11,13 +11,16 @@
     
     <title>Smart Expense Tracker</title>
     
-    <!-- NOTE: All style and script tags for Tailwind have been removed. -->
-    <!-- Your ThemeContext now handles everything, including flicker prevention. -->
+    <!-- NOTE: This file is now clean. All CSS is handled by your local Tailwind installation. -->
     
   </head>
   <body class="bg-slate-50 dark:bg-black">
     <div id="root"></div>
-    <!-- The importmap script is no longer needed with a local NPM setup -->
+
+    <!-- --- START OF THE FIX --- -->
+    <!-- This path now correctly points to your index.tsx file in the root folder -->
     <script type="module" src="/index.tsx"></script>
+    <!-- --- END OF THE FIX --- -->
+
   </body>
 </html>
